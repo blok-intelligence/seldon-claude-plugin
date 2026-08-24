@@ -1,5 +1,6 @@
 {
   "name": "seldon",
+  "description": "Seldon — run AI personas against your live product to find what breaks and why. QA baselines as code, persona usability experiments, and messaging tests.",
   "owner": {
     "name": "Seldon",
     "url": "https://www.seldon.com"

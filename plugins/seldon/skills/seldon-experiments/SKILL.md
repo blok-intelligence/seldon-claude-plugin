@@ -63,8 +63,12 @@ If a run explored less than you expected, the goal was too narrow. That is not a
 
 ### 3. Run
 
-`run_experiment` — dispatches it. `runs` sets how many times each persona attempts the goal; more runs
-mean more evidence that a finding is real rather than a one-off. Omit it to take the server default.
+`run_experiment` — dispatches it. `runs` is **per persona**, not total: 4 personas at `runs: 3` is 12
+browser sessions. It defaults to 3 when omitted.
+
+More runs mean more evidence that a finding is real rather than one persona having one bad session. When
+you read the results, a finding that appeared in 3 of 3 runs is a different claim from one that appeared
+in 1 of 3 — and the summary tells you which.
 
 ### 4. Poll
 

@@ -74,8 +74,26 @@ CSS selectors, timing hacks and network assertions are not what this runs on. De
 
 If you cannot tell from a screenshot whether the criterion was met, rewrite it.
 
-**Give the agent what it cannot guess.** Test credentials, test card numbers, a specific product to pick.
-The agent explores, but it cannot invent a valid login.
+**Give the agent what it cannot guess.** Test card numbers, a specific product to pick, which of three
+plans to choose. The agent explores, but it cannot invent facts it was never given.
+
+### Logins
+
+If the flow needs a signed-in user, put the credentials in the `run` block — the QA agent signs in
+before testing:
+
+```yaml
+run:
+  url: https://staging.example.com
+  username: qa@example.com
+  password: hunter2
+```
+
+**A `username` without a `password` is silently ignored** — the login simply does not happen, and you
+get a run that failed for a reason the report cannot explain. Always set both or neither.
+
+These are committed to the repo like a `.env` value. Use a throwaway test account, never a real one,
+and prefer a managed secret in anything production-adjacent.
 
 ### Case ids
 
