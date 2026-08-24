@@ -1,0 +1,12 @@
+{
+  "name": "seldon",
+  "displayName": "Seldon",
+  "version": "0.1.0",
+  "description": "Run AI personas against your live product to find what breaks and why. QA baselines as code, persona usability experiments, and messaging tests — authored, run and read from inside your agent.",
+  "author": {
+    "name": "Seldon",
+    "url": "https://www.seldon.com"
+  },
+  "homepage": "https://www.seldon.com",
+  "mcpServers": "./.mcp.json"
+}

@@ -1,0 +1,23 @@
+{
+  "name": "seldon",
+  "owner": {
+    "name": "Seldon",
+    "url": "https://www.seldon.com"
+  },
+  "plugins": [
+    {
+      "name": "seldon",
+      "source": "./plugins/seldon",
+      "displayName": "Seldon",
+      "description": "Run AI personas against your live product to find what breaks and why. QA baselines as code, persona usability experiments, and messaging tests — authored, run and read from inside your agent.",
+      "version": "0.1.0",
+      "author": {
+        "name": "Seldon",
+        "url": "https://www.seldon.com"
+      },
+      "homepage": "https://www.seldon.com",
+      "category": "testing",
+      "tags": ["qa", "testing", "browser-automation", "user-research", "personas", "e2e"]
+    }
+  ]
+}
