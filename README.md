@@ -11,18 +11,31 @@ nothing to build or install locally.
 You need a Seldon API key — **Settings → API keys** in the [Seldon app](https://app.seldon.com). The
 value is shown once.
 
-```bash
-export SELDON_API_KEY=seldon_your_api_key    # add to your shell profile to persist
-```
+In Claude Code:
 
-Then, in Claude Code:
-
-```
+```text
 /plugin marketplace add blok-intelligence/seldon-claude-plugin
 /plugin install seldon@seldon
 ```
 
-Restart, and `/mcp` should list `seldon` as connected.
+The install prompts for your API key with masked input. Nothing to export and nothing to edit: Claude
+Code stores it in your OS keychain (macOS) or `~/.claude/.credentials.json` (elsewhere), never in a
+settings file and never in this repository. Run `/plugin configure seldon@seldon` any time to change it.
+
+To script the install instead:
+
+```bash
+claude plugin install seldon@seldon --config api_key=seldon_your_api_key
+```
+
+`/mcp` should then list `seldon` as connected.
+
+### Options
+
+| Option | Required | Default |
+| --- | --- | --- |
+| `api_key` | Yes | — |
+| `base_url` | No | `https://app.seldon.com` — change only to target a non-production backend |
 
 ### Just the MCP server, without the plugin
 
@@ -73,26 +86,14 @@ figure out which plan they need
 What did experiment <id> find, and what should I fix first?
 ```
 
-## Configuration
-
-| Variable | Required | Default |
-| --- | --- | --- |
-| `SELDON_API_KEY` | Yes | — |
-| `SELDON_BASE_URL` | No | `https://app.seldon.com` |
-
-### If tools fail with "Invalid or revoked API key"
+## If tools fail with "Invalid or revoked API key"
 
 `claude mcp list` showing **✔ Connected is not proof your key is valid.** The server accepts the
-connection whenever a key header is present and only checks the key when a tool actually runs. So an
-unset or misspelled `SELDON_API_KEY` looks connected and then fails on every call.
+connection whenever a key header is present and only checks it when a tool actually runs, so a wrong
+key looks connected and then fails on every call.
 
-If you see that error, check the variable is exported in the environment Claude Code was launched from:
-
-```bash
-echo $SELDON_API_KEY     # should print seldon_...
-```
-
-Setting it in a shell after Claude Code started will not reach it — restart Claude Code.
+Re-enter it with `/plugin configure seldon@seldon`, and check the key has not been revoked in
+**Settings → API keys**.
 
 Keys are tenant-scoped: an id you do not own returns "not found" rather than a permission error, so it
 cannot be used to confirm that someone else's id exists.
