@@ -1,13 +1,21 @@
 {
   "name": "seldon",
   "displayName": "Seldon",
-  "version": "0.2.0",
-  "description": "Run AI personas against your live product to find what breaks and why. QA baselines as code, persona usability experiments, and messaging tests — authored, run and read from inside your agent.",
+  "version": "0.3.0",
+  "description": "Run AI personas against your live product to find what breaks and why. QA baselines as code, persona usability studies, and messaging tests — authored, run and read from inside your agent.",
   "author": {
-    "name": "Seldon",
+    "name": "Blok Intelligence Inc.",
     "url": "https://www.seldon.com"
   },
   "homepage": "https://www.seldon.com",
+  "repository": "https://github.com/blok-intelligence/seldon-claude-plugin",
+  "license": "MIT",
+  "keywords": ["qa", "testing", "browser-automation", "user-research", "personas", "e2e"],
+  "icon": "./icon.svg",
+  "documentationUrl": "https://github.com/blok-intelligence/seldon-claude-plugin#readme",
+  "supportUrl": "https://www.seldon.com/contact",
+  "privacyPolicyUrl": "https://www.seldon.com/privacy",
+  "termsOfServiceUrl": "https://www.seldon.com/terms",
   "userConfig": {
     "api_key": {
       "type": "string",
@@ -16,13 +24,12 @@
       "sensitive": true,
       "required": true
     },
-    "base_url": {
+    "mcp_url": {
       "type": "string",
-      "title": "Seldon base URL",
+      "title": "Seldon MCP endpoint",
       "description": "Only change this to point at a non-production backend.",
-      "default": "https://app.seldon.com",
+      "default": "https://app.seldon.com/mcp",
       "required": false
     }
-  },
-  "mcpServers": "./.mcp.json"
+  }
 }

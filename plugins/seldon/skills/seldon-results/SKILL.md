@@ -21,7 +21,9 @@ report is *not* telling you — is the part that goes wrong.
 `get_summary` and `get_report` are complementary, not alternatives. **The summary is what was learned;
 the report is which case failed.** For a QA run worth understanding, read both.
 
-`get_summary` works for both classic and QA runs — you do not need to know the kind before calling it.
+`get_summary` works for both classic and QA runs — you do not need to know the kind before calling
+it, and the response's `kind` says which you got. A study launched from a `<name>.usability.yml` is a
+classic run afterwards, so it reads back exactly like one.
 
 ---
 
@@ -138,7 +140,8 @@ Read the **spread**, not just the winner. If variants score within noise of each
 is "the copy is not the bottleneck" — report that rather than crowning a winner. A recommendation always
 comes back; it does not mean the difference is meaningful.
 
-Detailed per-persona predictions are omitted unless you pass `full`, because they are large.
+`get_messaging_results` shows the final round by default; pass `full` for every iteration round. The
+per-persona prediction matrix is omitted either way — it is very large and rarely what you want.
 
 ---
 
@@ -149,10 +152,13 @@ specific question the summary did not answer: "did anyone mention pricing?", "wh
 
 | Argument | Use |
 | --- | --- |
-| `query` | Natural language. |
+| `query` | Natural language. It is semantic, so phrase it as a question. |
 | `experiment_id` | Scope to one run. |
 | `persona_id` | Scope to one persona's experience. |
-| `top_k` | How many results. |
+| `persona_knowledge_only` | **Set this whenever `persona_id` is set.** Without it, experiment-level sources that aggregate across every persona come back too, and you will attribute a group observation to one persona. |
+| `run_number` | Scope to a single simulation run index. |
+| `top_k` | How many results (default 10, server max 100). |
+| `similarity_threshold` | Minimum cosine similarity, 0-1. Raise it when the results are loosely related. |
 
 It returns ranked excerpts, not an answer — there is no model in the loop. That is the point: it is
 evidence, not another opinion. Quote what it returns rather than paraphrasing it into a stronger claim.
@@ -160,6 +166,12 @@ evidence, not another opinion. Quote what it returns rather than paraphrasing it
 `get_run_logs` shows the agent's step-by-step reasoning. Add `include_actions: true` for what it actually
 did — clicks and typing, each with a screenshot. This is how you distinguish "the feature is broken" from
 "the agent never found the feature", which look identical in a summary.
+
+It returns a bounded page in server order, not a live stream: to advance, call again with `since` set to
+the last entry's timestamp. Narrow with `type` (`thinking` is the default; also `action`, `analysis`,
+`status`, `recommendation`, `notes`, or `all`) and `source` (e.g. `UI Agent`, `Persona: {name}`). A
+`type: action` filter returns nothing unless `include_actions` is set — only thinking survives
+consolidation.
 
 ---
 

@@ -1,13 +1,13 @@
 ---
 name: seldon-qa
-description: Author, run and iterate on Seldon QA baselines — a seldon.yml of plain-English test cases run by AI agents against a live URL. Use when the user wants end-to-end QA, regression testing, "test my app", "does the signup flow still work", writing or fixing a seldon.yml, or reading a QA report to fix what failed.
+description: Author, run and iterate on Seldon QA baselines — a seldon.yml of plain-English test cases run by AI agents against a live URL — and manage the logins those runs sign in with. Use when the user wants end-to-end QA, regression testing, "test my app", "does the signup flow still work", writing or fixing a seldon.yml, storing a test login, or reading a QA report to fix what failed.
 ---
 
 # Seldon QA — baselines as code
 
-A **baseline** is a QA test plan written as plain English in a `seldon.yml` file at the repo root. An AI
-agent opens a real browser, performs each case's steps against a live URL, and a judge decides whether the
-acceptance criterion was met. You get a per-case verdict with evidence.
+A **baseline** is a QA test plan written as plain English in a `seldon.yml` file at the repo root. An
+AI agent opens a real browser, performs each case's steps against a live URL, and a judge decides
+whether the acceptance criterion was met. You get a per-case verdict with evidence.
 
 The file is the source of truth. There is no separate authoring UI to keep in sync — you edit
 `seldon.yml`, commit it, and run it.
@@ -27,11 +27,13 @@ Never skip validate. It is free and catches shape errors before you spend a run 
 ```yaml
 version: 1
 name: web-app                        # project identity when there's no git repo
+labels: [nightly]                    # optional run tags, merged with any passed at run time
 run:
   url: https://staging.example.com   # default target for every case
 testCases:
   - name: Login works
     id: login                        # optional but recommended — see "Case ids" below
+    area: fe/auth                    # optional report grouping — "/" nests it
     steps:
       - go to /login
       - submit valid credentials
@@ -51,20 +53,22 @@ Three fields do the work:
 | `steps` | Ordered plain-English instructions. Required. Write what a person would do, not selectors. |
 | `criteria` | **One** acceptance criterion the verdict is judged against. Required. |
 
-Optional per case: `id`, `url` (a leading `/` joins onto `run.url`; anything else is treated as a separate
-site), `skip: true` to exclude it, `only: true` to run just the flagged cases.
+Optional per case: `id`, `area` (a grouping label the report nests on `/`), `url` (a leading `/` joins
+onto `run.url`; anything else is treated as a separate site), `skip: true` to exclude it, `only: true`
+to run just the flagged cases.
 
 ### Writing steps and criteria well
 
-This is where most QA runs succeed or fail. The agent reads these as instructions, and the judge reads
-the criterion as the definition of done.
+This is where most QA runs succeed or fail. The agent reads these as instructions, and the judge
+reads the criterion as the definition of done.
 
 **Steps — describe intent, not implementation.**
 
 - Good: `go to /login`, `submit valid credentials`, `open the account menu`
 - Bad: `click #login-btn`, `wait 3000ms`, `assert response.status === 200`
 
-CSS selectors, timing hacks and network assertions are not what this runs on. Describe what a person does.
+CSS selectors, timing hacks and network assertions are not what this runs on. Describe what a person
+does.
 
 **Criteria — one observable outcome, checkable from the screen.**
 
@@ -77,10 +81,9 @@ If you cannot tell from a screenshot whether the criterion was met, rewrite it.
 **Give the agent what it cannot guess.** Test card numbers, a specific product to pick, which of three
 plans to choose. The agent explores, but it cannot invent facts it was never given.
 
-### Logins
+### Logins — two ways, and they are not equivalent
 
-If the flow needs a signed-in user, put the credentials in the `run` block — the QA agent signs in
-before testing:
+**In the file.** Put the credentials in the `run` block and the QA agent signs in before testing:
 
 ```yaml
 run:
@@ -92,37 +95,62 @@ run:
 **A `username` without a `password` is silently ignored** — the login simply does not happen, and you
 get a run that failed for a reason the report cannot explain. Always set both or neither.
 
-These are committed to the repo like a `.env` value. Use a throwaway test account, never a real one,
-and prefer a managed secret in anything production-adjacent.
+These are committed to the repo like a `.env` value. Use a throwaway test account, never a real one.
+
+**In the workspace, as a link.** When `seldon.yml` declares no login of its own, a run resolves one by
+matching the target URL's host against the workspace's registry of links. **This is the right answer
+whenever the credential must not land in the repo** — which is most of the time outside a throwaway
+staging account.
+
+| Tool | Does |
+| --- | --- |
+| `list_links` | The registered sites and their logins. **Call this before creating one** — the host may already have a link. Credentials come back masked. |
+| `create_link` | Register a site with `name`, `url`, and optionally `login_username`, `login_password`, `description`, `is_default`. |
+| `update_link` | Rename, retarget, rotate the login, or `clear_credentials: true` to remove the login and keep the link. |
+| `delete_link` | Remove the link and its credentials. |
+
+Two things to carry forward: **a stored password is never readable again** — reads return a fixed mask
+plus at most the last four characters, so rotating is not reversible and you cannot check a password
+by reading it back. And **deleting a link silently changes behaviour**: runs that resolved their login
+from it will browse signed out rather than fail loudly, so check `list_links` for what else points at
+that host first.
 
 ### Case ids
 
-Every case resolves to an id: your explicit `id`, or the slugified `name` (`"Login works"` → `login-works`).
-Verdict history is keyed to that id, so **set an explicit `id` on long-lived cases** — otherwise rewording
-the title silently starts a new history.
+Every case resolves to an id: your explicit `id`, or the slugified `name` (`"Login works"` →
+`login-works`). Verdict history is keyed to that id, so **set an explicit `id` on long-lived cases** —
+otherwise rewording the title silently starts a new history.
 
 ## 2. Validate
 
 `validate_seldon_yaml` — pass the raw file text. It parses and shape-checks, reporting precise errors.
 Run it after every edit, before every run.
 
-`create_baseline` scaffolds a starter `seldon.yml` if the repo has none. `add_test_case` appends one case
-(name + steps + criteria) without you hand-editing YAML.
+`create_baseline` scaffolds a starter `seldon.yml` if the repo has none. `add_test_case` appends one
+case (name + steps + criteria) without you hand-editing YAML.
 
 ## 3. Run
 
-`run_seldon` — ingests the file and dispatches the run. Returns an `experiment_id`.
+`run_seldon` — ingests the file and dispatches the run. Pass the raw `seldon_yaml` content: the hosted
+server has no filesystem, so `path` only works in local/stdio mode. Returns an `experiment_id`.
 
 | Argument | When to use it |
 | --- | --- |
 | `url` | Target this run at a preview/PR deploy. Overrides `run.url`. |
-| `labels` | Tag the run (e.g. a PR number or commit sha) so you can find it later. |
+| `labels` | Tag the run (e.g. a PR number or commit sha) so you can find it later. Merged with the file's `labels`. |
+| `name` | Display name for this run in the app. Defaults to the project's lineage key. |
+| `lineage_key` | Project identity. Defaults to the git remote `owner/repo` or the config `name` — only set it when neither is right. |
+| `idempotency_key` | Pass one when retrying a dispatch you are not sure landed, so you replay the first run instead of starting a second. |
 
 Re-running an unchanged file is idempotent — no version churn. A new baseline version is recorded only
-when case **content** changes (title, steps, criteria, per-case url). Toggling `skip`/`only` or changing
-`run.url` does not count as a content change.
+when case **content** changes (title, steps, criteria, per-case url). Toggling `skip`/`only` or
+changing `run.url` does not count as a content change.
 
-`cancel_baseline_run` stops a run mid-flight.
+`cancel_baseline_run` stops a run mid-flight; the `seldon.yml` is untouched.
+
+**A local URL cannot be run from here.** Seldon's agents browse from the cloud and cannot reach
+`localhost`. The CLI can: `seldon run --url http://localhost:3000` opens a temporary tunnel, after
+asking the user to confirm. Hand that command to the user rather than failing the request.
 
 ## 4. Read the report
 
@@ -141,13 +169,20 @@ Failed cases carry a triage severity: `blocker`, `major`, `minor`, `cosmetic`. F
 
 Useful arguments:
 
-- `verdict` — narrow to failures. Do this first on a large baseline; a 60-case report is mostly noise
-  when 3 cases fail.
-- `full` — expand every detail block. Only after you have narrowed down which case you care about.
+- `verdict` — `fail`, `blocked`, `timed_out`, `pass`, or `all` (default). Narrow to failures first on
+  a large baseline; a 60-case report is mostly noise when 3 cases fail.
+- `full` — expand every detail block. Only after you have narrowed down which case you care about;
+  it costs many more tokens.
 
-`get_run_logs` shows what the agent was thinking, step by step. Add `include_actions: true` to also get
-what it actually *did* — each click and keystroke with a screenshot URL. This is how you tell "the button
-is broken" apart from "the agent never found the button".
+`get_run_logs` shows what the agent was thinking, step by step — the reasoning stream by default.
+
+| Argument | Use |
+| --- | --- |
+| `include_actions` | Also what it actually **did**: each click and keystroke with a screenshot URL. This is how you tell "the button is broken" apart from "the agent never found the button". Without it, a `type: action` filter comes back empty. |
+| `type` | `thinking` (default), `action`, `analysis`, `status`, `recommendation`, `notes`, or `all`. |
+| `since` | ISO-8601. The hosted server returns a bounded page, not a live stream — page forward with the last entry's timestamp. |
+| `source` | e.g. `UI Agent` or `Persona: {name}`. |
+| `limit` | Default 200; server caps apply. |
 
 ## 5. Act on it
 
@@ -157,16 +192,27 @@ Work failures in severity order. For each one:
 2. Decide: **product defect** or **bad test**?
    - Product defect → fix the code.
    - The criterion did not describe what you actually wanted, or the steps were ambiguous → fix
-     `seldon.yml`. This is a legitimate outcome, not a cop-out. Vague criteria produce meaningless verdicts.
-3. Re-run. `only: true` on the case you are iterating on keeps the loop fast; remove it before committing.
+     `seldon.yml`. This is a legitimate outcome, not a cop-out. Vague criteria produce meaningless
+     verdicts.
+3. Re-run. `only: true` on the case you are iterating on keeps the loop fast; remove it before
+   committing.
 
 Treat a `blocked` verdict as a task in its own right — usually credentials, a seeded fixture, or an
 environment that is down. Blocked cases tell you nothing about product quality until unblocked.
 
 ## Finding earlier runs
 
-- `list_baselines` — every baseline the key can see, across all sources.
-- `list_baseline_runs` — runs for a baseline, newest first.
+- `list_baselines` — every baseline the key can see, across all sources (CLI/MCP runs and installed
+  GitHub repos).
+- `list_baseline_runs` — QA runs the key can see, newest first.
 - `get_summary` — the narrative view of a QA run (see the `seldon-results` skill). Complementary to
   `get_report`: the summary is what was learned, the report is which case failed. For a QA run worth
   understanding, read both.
+
+## When to hand over to the CLI
+
+The MCP tools cover authoring, running and reading. The `seldon` CLI covers the two things an agent
+cannot do from here, and the user runs it themselves:
+
+- `seldon run --url http://localhost:3000` — a local target, through a temporary tunnel.
+- `seldon run --fail-on fail` — the CI gate, exiting non-zero when cases do not pass.

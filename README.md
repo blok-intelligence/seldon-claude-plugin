@@ -4,7 +4,7 @@ Run AI personas against your live product to find what breaks and why — from i
 
 This repo is a [Claude Code plugin marketplace](https://code.claude.com/docs/en/plugin-marketplaces).
 It contains connection config and skills only; the Seldon MCP server itself is hosted, so there is
-nothing to build or install locally.
+nothing to build, compile or run locally. The plugin ships no executables and no hooks.
 
 ## Install
 
@@ -35,7 +35,7 @@ claude plugin install seldon@seldon --config api_key=seldon_your_api_key
 | Option | Required | Default |
 | --- | --- | --- |
 | `api_key` | Yes | — |
-| `base_url` | No | `https://app.seldon.com` — change only to target a non-production backend |
+| `mcp_url` | No | `https://app.seldon.com/mcp` — change only to target a non-production backend |
 
 ### Just the MCP server, without the plugin
 
@@ -54,22 +54,27 @@ Add `--scope user` to make it available in every project rather than just the cu
 
 | Skill | Covers |
 | --- | --- |
-| `seldon-qa` | Authoring, running and iterating on a `seldon.yml` QA baseline; reading verdicts and fixing what failed |
-| `seldon-experiments` | Choosing the right experiment kind, running persona and messaging experiments, finding past runs |
+| `seldon-qa` | Authoring, running and iterating on a `seldon.yml` QA baseline; storing the logins runs sign in with; reading verdicts and fixing what failed |
+| `seldon-experiments` | Choosing the right experiment kind, running usability studies, persona and messaging experiments, finding past runs |
 | `seldon-results` | Interpreting summaries, findings, severities, coverage caveats, QA verdicts and messaging scoreboards |
 
-**Twenty tools** over the hosted MCP server:
+**Twenty-seven tools** over the hosted MCP server. Which ones are offered depends on your workspace's
+plan — a QA-only workspace does not see the persona and messaging tools.
 
 *QA baselines as code* — `validate_seldon_yaml`, `create_baseline`, `add_test_case`, `run_seldon`,
 `list_baselines`, `list_baseline_runs`, `get_report`, `get_run_logs`, `cancel_baseline_run`
 
+*Usability studies as code* — `validate_usability_study`, `launch_usability_study`
+
 *Persona experiments* — `list_personas`, `list_experiments`, `create_experiment`, `run_experiment`,
-`get_experiment_status`
+`rerun_experiment`, `get_experiment_status`
 
 *Messaging experiments* — `create_messaging_experiment`, `run_messaging_experiment`,
 `get_messaging_status`, `get_messaging_results`
 
 *Reading a run* — `get_summary`, `search_knowledge`
+
+*Logins* — `list_links`, `create_link`, `update_link`, `delete_link`
 
 ## Try it
 
@@ -78,13 +83,26 @@ Write me a seldon.yml covering login and checkout for https://staging.example.co
 ```
 
 ```
-Run a persona experiment on our pricing page — I want to know whether a technical buyer can
+Run a usability study on our pricing page — I want to know whether a technical buyer can
 figure out which plan they need
 ```
 
 ```
 What did experiment <id> find, and what should I fix first?
 ```
+
+## What leaves your machine
+
+The plugin configures one remote MCP server at `https://app.seldon.com/mcp` and nothing else. Your API
+key is sent to that endpoint as an `X-API-Key` header; a tool call sends whatever that tool takes —
+your `seldon.yml` or study text, a target URL, goals, persona selections and run ids. Seldon's browser
+agents then load the URL you gave them from Seldon's cloud. Seldon's
+[privacy policy](https://www.seldon.com/privacy) and [terms](https://www.seldon.com/terms) cover what
+the service does with a run's data.
+
+Credentials for the site under test are yours to place: commit them to `seldon.yml` under `run:` (treat
+that like a `.env` value — use a throwaway account) or register them once with `create_link`, which
+stores them encrypted server-side and only ever returns a masked preview afterwards.
 
 ## If tools fail with "Invalid or revoked API key"
 
@@ -102,3 +120,8 @@ cannot be used to confirm that someone else's id exists.
 
 - [Seldon](https://www.seldon.com)
 - [Get an API key](https://app.seldon.com)
+- [Privacy policy](https://www.seldon.com/privacy) · [Terms](https://www.seldon.com/terms)
+
+## Licence
+
+[MIT](./LICENSE). © Blok Intelligence Inc.
