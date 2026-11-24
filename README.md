@@ -35,14 +35,14 @@ claude plugin install seldon@seldon --config api_key=seldon_your_api_key
 | Option | Required | Default |
 | --- | --- | --- |
 | `api_key` | Yes | — |
-| `mcp_url` | No | `https://app.seldon.com/mcp` — change only to target a non-production backend |
+| `mcp_url` | No | `https://mcp.seldon.com/mcp` — change only to target a non-production backend |
 
 ### Just the MCP server, without the plugin
 
 If you only want the tools and not the skills:
 
 ```bash
-claude mcp add --transport http seldon https://app.seldon.com/mcp \
+claude mcp add --transport http seldon https://mcp.seldon.com/mcp \
   --header "X-API-Key: seldon_your_api_key"
 ```
 
@@ -93,7 +93,7 @@ What did experiment <id> find, and what should I fix first?
 
 ## What leaves your machine
 
-The plugin configures one remote MCP server at `https://app.seldon.com/mcp` and nothing else. Your API
+The plugin configures one remote MCP server at `https://mcp.seldon.com/mcp` and nothing else. Your API
 key is sent to that endpoint as an `X-API-Key` header; a tool call sends whatever that tool takes —
 your `seldon.yml` or study text, a target URL, goals, persona selections and run ids. Seldon's browser
 agents then load the URL you gave them from Seldon's cloud. Seldon's

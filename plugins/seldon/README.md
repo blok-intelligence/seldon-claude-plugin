@@ -21,7 +21,7 @@ server. Everything it does happens over one hosted MCP server.
 
 ## What it sends, and where
 
-The plugin adds a single HTTP MCP server pointed at `https://app.seldon.com/mcp` and nothing else. It
+The plugin adds a single HTTP MCP server pointed at `https://mcp.seldon.com/mcp` and nothing else. It
 runs no code on your machine.
 
 - **Your API key** is collected by Claude Code's configuration prompt as a `sensitive` option, stored
@@ -55,7 +55,7 @@ change it. `/mcp` should then list `seldon` as connected.
 | Option | Required | Default |
 | --- | --- | --- |
 | `api_key` | Yes | — |
-| `mcp_url` | No | `https://app.seldon.com/mcp` |
+| `mcp_url` | No | `https://mcp.seldon.com/mcp` |
 
 ## Tools
 
