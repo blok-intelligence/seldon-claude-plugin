@@ -2,7 +2,7 @@
   "mcpServers": {
     "seldon": {
       "type": "http",
-      "url": "${user_config.mcp_url}",
+      "url": "https://mcp.seldon.com/mcp",
       "headers": {
         "X-API-Key": "${user_config.api_key}"
       }

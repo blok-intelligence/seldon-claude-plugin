@@ -35,7 +35,9 @@ claude plugin install seldon@seldon --config api_key=seldon_your_api_key
 | Option | Required | Default |
 | --- | --- | --- |
 | `api_key` | Yes | — |
-| `mcp_url` | No | `https://mcp.seldon.com/mcp` — change only to target a non-production backend |
+
+The endpoint is fixed at `https://mcp.seldon.com/mcp`. To point a session at a
+non-production backend, add the server directly with `claude mcp add` instead of using the plugin.
 
 ### Just the MCP server, without the plugin
 

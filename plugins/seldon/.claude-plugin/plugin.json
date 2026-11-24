@@ -1,7 +1,7 @@
 {
   "name": "seldon",
   "displayName": "Seldon",
-  "version": "0.3.2",
+  "version": "0.4.0",
   "description": "Run AI personas against your live product to find what breaks and why. QA baselines as code, persona usability studies, and messaging tests — authored, run and read from inside your agent.",
   "author": {
     "name": "Tom Charman",
@@ -11,7 +11,7 @@
   "repository": "https://github.com/blok-intelligence/seldon-claude-plugin",
   "license": "MIT",
   "keywords": ["qa", "testing", "browser-automation", "user-research", "personas", "e2e"],
-  "icon": "./icon.svg",
+  "icon": "./icon.png",
   "documentationUrl": "https://github.com/blok-intelligence/seldon-claude-plugin#readme",
   "supportUrl": "https://www.seldon.com/contact",
   "privacyPolicyUrl": "https://www.seldon.com/privacy",
@@ -23,13 +23,6 @@
       "description": "Create one under Settings → API keys in the Seldon app. The value is shown once.",
       "sensitive": true,
       "required": true
-    },
-    "mcp_url": {
-      "type": "string",
-      "title": "Seldon MCP endpoint",
-      "description": "Only change this to point at a non-production backend.",
-      "default": "https://mcp.seldon.com/mcp",
-      "required": false
     }
   }
 }
