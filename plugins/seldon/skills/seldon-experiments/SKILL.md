@@ -57,7 +57,7 @@ target:
   url: https://staging.example.com/signup
   credentials:
     username: qa@example.com
-    password: hunter2
+    password: <test-account-password>
 personas:
   - Budget-conscious founder
 ```

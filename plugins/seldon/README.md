@@ -31,7 +31,8 @@ runs no code on your machine.
   `<name>.usability.yml`, a target URL, goals and persona selections, and the ids of runs you ask to
   read back. Seldon's browser agents then load the URL you gave them from Seldon's cloud.
 - **Credentials for the site under test** are yours to place. Either commit them to `seldon.yml` under
-  `run:` (treat that like a `.env` value — use a throwaway test account) or register them once with
+  `run:` (anything committed there is as exposed as the repo is — use a throwaway test account) or
+  register them once with
   `create_link`, which stores them encrypted server-side and returns only a masked preview afterwards.
 - **The endpoint is fixed.** The plugin talks to `https://mcp.seldon.com/mcp` and nowhere else; there
   is no option that can repoint it. To reach a non-production Seldon backend, add that server yourself

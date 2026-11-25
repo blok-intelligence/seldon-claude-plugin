@@ -89,13 +89,15 @@ plans to choose. The agent explores, but it cannot invent facts it was never giv
 run:
   url: https://staging.example.com
   username: qa@example.com
-  password: hunter2
+  password: <test-account-password>
 ```
 
 **A `username` without a `password` is silently ignored** — the login simply does not happen, and you
 get a run that failed for a reason the report cannot explain. Always set both or neither.
 
-These are committed to the repo like a `.env` value. Use a throwaway test account, never a real one.
+Anything you put here is committed, so it is as exposed as the repo is. Use a throwaway test
+account, never a real one — and prefer a workspace link (below), which keeps the credential out of
+the repo entirely.
 
 **In the workspace, as a link.** When `seldon.yml` declares no login of its own, a run resolves one by
 matching the target URL's host against the workspace's registry of links. **This is the right answer

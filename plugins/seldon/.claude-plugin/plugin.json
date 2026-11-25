@@ -1,7 +1,7 @@
 {
   "name": "seldon",
   "displayName": "Seldon",
-  "version": "0.4.0",
+  "version": "0.4.1",
   "description": "Run AI personas against your live product to find what breaks and why. QA baselines as code, persona usability studies, and messaging tests — authored, run and read from inside your agent.",
   "author": {
     "name": "Tom Charman",

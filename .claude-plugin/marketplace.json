@@ -11,7 +11,7 @@
       "source": "./plugins/seldon",
       "displayName": "Seldon",
       "description": "Run AI personas against your live product to find what breaks and why. QA baselines as code, persona usability studies, and messaging tests — authored, run and read from inside your agent.",
-      "version": "0.4.0",
+      "version": "0.4.1",
       "author": {
         "name": "Tom Charman",
         "url": "https://www.seldon.com"

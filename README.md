@@ -103,7 +103,8 @@ agents then load the URL you gave them from Seldon's cloud. Seldon's
 the service does with a run's data.
 
 Credentials for the site under test are yours to place: commit them to `seldon.yml` under `run:` (treat
-that like a `.env` value — use a throwaway account) or register them once with `create_link`, which
+that anything committed there is as exposed as the repo is — use a throwaway account) or register
+them once with `create_link`, which
 stores them encrypted server-side and only ever returns a masked preview afterwards.
 
 ## If tools fail with "Invalid or revoked API key"
